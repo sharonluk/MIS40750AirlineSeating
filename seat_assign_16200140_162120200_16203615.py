@@ -84,7 +84,7 @@ class seatAllocator(object):
 
 
 
-database=database('airline_seating.db')
+database=database('data.db')
 rows=database.getRows()
 cols=database.getColumns()
 
