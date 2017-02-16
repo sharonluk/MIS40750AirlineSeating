@@ -70,7 +70,7 @@ class database(object):
 		return emptySeats
  
 	#return the list of rows having empty seats more than required sets
-	def getEmptyRowBySeats(self,requiredSeats,maxSeatsInARow):
+	def getEmptyRowBySeats(self,requiredSeats):
 		conn=sqlite3.connect(self.fileName)
 		c=conn.cursor()
 		cmd='Select row,count(seat) as numOfSeats from seating  where name="" group by row  having numOfSeats>(?)'
@@ -118,6 +118,16 @@ class seatAllocator(database):
 		if(numberOfSeats<remainingSeats):
 			#fine go ahead with booking
 			print("you are ok")
+
+			#check if passengers can be accomodated in a single row
+			if(numberOfSeats<self.columns):
+				bookedRow=database.getEmptyRowBySeats(numberOfSeats)
+				print("Seats can be booked in row: {}".format(bookedRow))
+
+			else:
+				print("python indentation sucks")
+				# do modulus, break down seats according to columns
+
 		else:
 			print("Not enough seats available. Remaining seats are {}".format(remainingSeats))
 			self.bookingsRefused+=numberOfSeats
@@ -143,7 +153,9 @@ totalEmptySeats=database.getRemainingSeats()
 print('remaining seats: {}'.format(totalEmptySeats))
 
 
-database.getEmptyRowBySeats(3,10)
+booking.bookSeats(1)
+
+#database.getEmptyRowBySeats(3)
 
 
 
