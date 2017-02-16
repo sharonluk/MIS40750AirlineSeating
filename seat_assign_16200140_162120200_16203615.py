@@ -48,6 +48,13 @@ class database(object):
 	#returns the number of empty seats in a row
 	def getEmptySeatsInRow(self):
 		conn=sqlite3.connect(self.fileName)
+		c=conn.cursor()
+		cmd='Select count(seat) from seating where row=(?) and name is null'
+		c.execute(cmd,(rowNumber,))
+		emptySeats=c.fetchone()[0]
+		print(rowNumber)
+		conn.close()
+		return emptySeats
 		
 
 
