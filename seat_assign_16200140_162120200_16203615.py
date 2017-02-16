@@ -46,16 +46,16 @@ class database(object):
 		return count
 
 	#returns the number of empty seats in a row
-	def getEmptySeatsInRow(self):
+	#to do try catch
+	def getEmptySeatsInRow(self, rowNumber):
 		conn=sqlite3.connect(self.fileName)
 		c=conn.cursor()
-		cmd='Select count(seat) from seating where row=(?) and name is null'
+		cmd='Select count(seat) from seating where row=(?) and name=""'
 		c.execute(cmd,(rowNumber,))
 		emptySeats=c.fetchone()[0]
 		print(rowNumber)
 		conn.close()
 		return emptySeats
-		
 
 
 
@@ -87,8 +87,6 @@ class seatAllocator(object):
 			self.bookingsRefused+=requestedSeats
 			print("Total bookings refused till now {}".format(self.bookingsRefused))
 
-	def bookSeat(self,)
-
 
 
 database=database('data.db')
@@ -100,8 +98,12 @@ booking=seatAllocator(rows,cols)
 booking.seatChars=database.seatChars
 booking.printInfo()
 
+emptySeats=database.getEmptySeatsInRow(1)
+print(emptySeats)
+print('empty seats in row={}'.format(emptySeats))
 
-readCSV=readCSV('bookings.csv')
-readCSV.readFile()
+
+#readCSV=readCSV('bookings.csv')
+#readCSV.readFile()
 
 
