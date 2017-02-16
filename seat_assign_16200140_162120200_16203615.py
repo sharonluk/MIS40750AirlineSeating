@@ -45,6 +45,19 @@ class database(object):
 		conn.close()
 		return count
 
+
+
+	#returns the remaining seats
+
+	def getRemainingSeats(self):
+		conn=sqlite3.connect(self.fileName)
+		c=conn.cursor()
+		cmd='Select count(seat) from seating where name=""'
+		c.execute(cmd)
+		totalEmptySeats=c.fetchone()[0]
+		conn.close()
+		return totalEmptySeats
+
 	#returns the number of empty seats in a row
 	#to do try catch
 	def getEmptySeatsInRow(self, rowNumber):
@@ -53,17 +66,26 @@ class database(object):
 		cmd='Select count(seat) from seating where row=(?) and name=""'
 		c.execute(cmd,(rowNumber,))
 		emptySeats=c.fetchone()[0]
-		print(rowNumber)
 		conn.close()
 		return emptySeats
+ 
+	#return the list of rows having empty seats more than required sets
+	def getEmptyRowBySeats(self,requiredSeats,maxSeatsInARow):
+		conn=sqlite3.connect(self.fileName)
+		c=conn.cursor()
+		cmd='Select row,count(seat) as numOfSeats from seating  where name="" group by row  having numOfSeats>(?)'
+		c.execute(cmd,(requiredSeats,))
+		rowNumer=c.fetchone()[0]
+		print(emptySeats)
+		conn.close()
+		return rowNumer
 
 
 
 
+class seatAllocator(database):
 
-class seatAllocator(object):
-
-	def __init__(self,rows,columns):
+	def __init__(self,rows,columns,dbName):
 		self.maxSeats=rows*columns
 		self.rows=rows
 		self.columns=columns
@@ -73,6 +95,7 @@ class seatAllocator(object):
 		self.awayPassengers=0
 		self.seatsInRow=self.maxSeats/columns
 		self.seatChars=[]
+		database.__init__(dbName)
 
 
 	def printInfo(self):
@@ -87,20 +110,41 @@ class seatAllocator(object):
 			self.bookingsRefused+=requestedSeats
 			print("Total bookings refused till now {}".format(self.bookingsRefused))
 
+	def bookSeats(self,numberOfSeats):
+		
+		#get total seats remaining
+		remainingSeats=database.getRemainingSeats()
+		#check with remaining seats
+		if(numberOfSeats<remainingSeats):
+			#fine go ahead with booking
+			print("you are ok")
+		else:
+			print("Not enough seats available. Remaining seats are {}".format(remainingSeats))
+			self.bookingsRefused+=numberOfSeats
+			print("booking refused till now {}".format(self.bookingsRefused))
 
 
-database=database('data.db')
+
+
+dbName='data.db'
+database=database(dbName)
 rows=database.getRows()
 cols=database.getColumns()
 
 
-booking=seatAllocator(rows,cols)
+booking=seatAllocator(rows,cols,dbName)
 booking.seatChars=database.seatChars
 booking.printInfo()
 
 emptySeats=database.getEmptySeatsInRow(1)
-print(emptySeats)
 print('empty seats in row={}'.format(emptySeats))
+
+totalEmptySeats=database.getRemainingSeats()
+print('remaining seats: {}'.format(totalEmptySeats))
+
+
+database.getEmptyRowBySeats(3,10)
+
 
 
 #readCSV=readCSV('bookings.csv')
